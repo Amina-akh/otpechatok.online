@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07070b">
+<title>Эмоциональный интеллект</title>
+<meta name="description" content="Опросник ЭмИн Д. В. Люсина. Академия АНИНОТ.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="config.js"></script>
+<style>
+:root{
+  --bg:#07070b; --bg-2:#0d0e17; --card:rgba(240,240,244,.035);
+  --navy:#132a63; --plum:#331659;
+  --text:#f0f0f4; --text-2:#cfd0dc; --mute:#9a9db4; --mute-2:#676a82;
+  --line:rgba(240,240,244,.1); --line-2:rgba(240,240,244,.2);
+  --accent:#9aafe8; --accent-2:#b8a9dc;
+  --c-mp:#6d86d6; --c-mu:#4359a8; --c-vp:#7c5cb3; --c-vu:#55408c; --c-ve:#a9b7e6;
+  --d:'Playfair Display',Georgia,serif;
+  --f:'Manrope',ui-sans-serif,system-ui,sans-serif;
+  --m:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  --w:min(560px,calc(100% - 2.5rem));
+  --ease:cubic-bezier(.22,.61,.36,1);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;background:var(--bg)}
+body{
+  margin:0;min-height:100vh;background:var(--bg);color:var(--text);
+  font-family:var(--f);font-weight:300;font-size:16.5px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;-webkit-tap-highlight-color:transparent;
+}
+/* глубина: два еле различимых тона снизу и сверху */
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(120% 60% at 50% -10%, rgba(19,42,99,.55), transparent 60%),
+    radial-gradient(90% 50% at 50% 115%, rgba(51,22,89,.5), transparent 65%);}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:60;opacity:.06;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");}
+::selection{background:rgba(154,175,232,.3)}
+:focus-visible{outline:1px solid var(--accent);outline-offset:4px}
+h1,h2,h3,h4{margin:0;font-weight:600;line-height:1.08;text-wrap:balance}
+p{margin:0}
+a{color:inherit}
+button,input{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer;padding:0}
+[hidden]{display:none!important}
+.wrap{width:var(--w);margin-inline:auto;position:relative;z-index:2}
+.lbl{font-family:var(--m);font-size:10px;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--mute)}
+.num{font-family:var(--m);font-variant-numeric:tabular-nums}
+.serif{font-family:var(--d)}
+
+/* ---------------------------------------------------------- отпечаток */
+.print{display:block;width:100%;height:auto;overflow:visible}
+.print .petal{transform-box:fill-box;transform-origin:50% 100%;transition:transform 1.1s var(--ease)}
+.print .spin{transform-origin:0 0;animation:spin 140s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.print .spin{animation:none}.print .petal{transition:none}}
+
+#stageBox{position:fixed;inset:0;overflow:hidden;z-index:1;pointer-events:none}
+#stage{position:absolute;left:50%;top:50%;width:min(130vw,720px);transform:translate(-50%,-50%);
+  z-index:1;pointer-events:none;opacity:0;transition:opacity 1s ease,filter 1.2s ease,width 1s var(--ease)}
+#stage.on{opacity:.42}
+
+/* ------------------------------------------------------------- экраны */
+.screen{position:relative;z-index:2;min-height:100vh}
+.enter{animation:enter .6s var(--ease) both}
+@keyframes enter{from{opacity:0;transform:translateY(14px)}}
+@media (prefers-reduced-motion:reduce){.enter{animation:none}}
+
+/* ---------------------------------------------------------- вступление */
+.intro-top{padding:calc(1.2rem + env(safe-area-inset-top)) 0 0}
+.bar-top{display:flex;justify-content:space-between;align-items:center}
+.hero-print{width:min(78vw,330px);margin:1.2rem auto -.6rem}
+.title{font-family:var(--d);font-weight:500;font-size:clamp(2.2rem,11.2vw,3.9rem);letter-spacing:-.03em;line-height:.98;text-align:center}
+.title em{font-style:italic;color:var(--accent)}
+.lead{font-size:clamp(16.5px,4.6vw,18.5px);color:var(--text-2);text-align:center;margin:1.2rem auto 0;max-width:34ch;line-height:1.55}
+.meta{display:flex;justify-content:center;gap:1.4rem;margin-top:1.6rem;font-family:var(--m);font-size:11.5px;color:var(--mute);letter-spacing:.06em}
+.meta b{color:var(--text);font-weight:500}
+
+.sec{margin-top:3.2rem}
+.sec-h{display:flex;align-items:baseline;gap:.8rem;margin-bottom:1rem}
+.sec-h .idx{font-family:var(--m);font-size:10px;color:var(--mute-2);letter-spacing:.14em}
+.sec-h h2{font-family:var(--d);font-weight:500;font-size:clamp(1.4rem,6vw,1.8rem);letter-spacing:-.015em}
+.prose{color:var(--text-2)}
+.prose p+p{margin-top:.85rem}
+
+.abil{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+.abil li{display:grid;grid-template-columns:14px 1fr;gap:.9rem;padding:.95rem 0;border-bottom:1px solid var(--line)}
+.abil .dot{width:10px;height:10px;border-radius:50%;margin-top:.45rem;box-shadow:0 0 14px currentColor}
+.abil h4{font-family:var(--f);font-weight:500;font-size:15.5px;color:var(--text)}
+.abil p{font-size:14px;color:var(--mute);line-height:1.5;margin-top:.15rem}
+
+.quote{margin-top:1.2rem;padding:1rem 1.1rem;border:1px solid var(--line);background:var(--card);border-radius:14px;font-size:14.5px;color:var(--text-2)}
+
+.field{margin-top:2.4rem}
+.field label{display:block;margin-bottom:.55rem}
+.field input{width:100%;padding:.95rem 1.1rem;border:1px solid var(--line-2);background:rgba(240,240,244,.04);font-size:16px;font-weight:400;border-radius:14px}
+.field input:focus{outline:none;border-color:var(--accent)}
+.field input::placeholder{color:var(--mute-2)}
+
+.dock{position:sticky;bottom:0;z-index:5;padding:1.2rem 0 calc(1rem + env(safe-area-inset-bottom));margin-top:2rem;
+  background:linear-gradient(to top,var(--bg) 55%,rgba(7,7,11,0))}
+.cta{display:flex;align-items:center;justify-content:space-between;gap:1rem;width:100%;
+  padding:1.1rem 1.4rem;border-radius:999px;background:var(--text);color:var(--bg);
+  font-weight:600;font-size:15.5px;text-decoration:none;transition:transform .2s ease,background .2s ease}
+.cta i{font-style:normal;font-family:var(--m);font-size:14px;transition:transform .25s ease}
+.cta:hover{background:#fff}.cta:hover i{transform:translateX(4px)}
+.cta:active{transform:scale(.985)}
+.cta.ghost{background:transparent;color:var(--text);border:1px solid var(--line-2)}
+.cta.ghost:hover{background:rgba(240,240,244,.06)}
+.cta + .cta{margin-top:.5rem}
+.fine{font-size:12px;color:var(--mute-2);margin-top:.9rem;line-height:1.5;text-align:center}
+.fine a{color:var(--mute)}
+
+/* ---------------------------------------------------------------- тест */
+#quiz{display:flex;flex-direction:column}
+.q-bar{padding:calc(1rem + env(safe-area-inset-top)) 0 0}
+.q-bar .row{display:flex;justify-content:space-between;align-items:center;height:36px}
+.q-count{font-family:var(--m);font-size:12px;color:var(--mute);letter-spacing:.06em}
+.q-count b{color:var(--text);font-weight:500}
+.ticks{display:flex;gap:3px;margin-top:.6rem}
+.ticks i{flex:1;height:2px;border-radius:2px;background:var(--line);transition:background .3s ease}
+.ticks i.on{background:var(--accent)}
+.ticks i.cur{background:var(--text)}
+.back{font-family:var(--m);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);padding:.5rem 0}
+.back:hover{color:var(--text)}
+.back[disabled]{opacity:.25}
+
+.q-body{flex:1;display:flex;flex-direction:column;justify-content:center;padding:2rem 0 1rem}
+.q-text{font-family:var(--d);font-weight:500;font-size:clamp(1.55rem,7vw,2.25rem);letter-spacing:-.018em;line-height:1.22;
+  text-align:center;min-height:5.1em;display:flex;align-items:center;justify-content:center;text-wrap:balance}
+.q-anim{transition:opacity .22s ease,transform .22s ease}
+.q-anim.out{opacity:0;transform:translateX(-22px)}
+.q-anim.pre{opacity:0;transform:translateX(22px);transition:none}
+
+.scale{padding:1rem 0 calc(1.6rem + env(safe-area-inset-bottom))}
+.picked{text-align:center;font-family:var(--m);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);height:1.4em;transition:color .2s}
+.picked.on{color:var(--text)}
+.dots{display:flex;justify-content:space-between;align-items:center;margin:1.1rem auto 0;max-width:340px}
+.dbtn{position:relative;display:grid;place-items:center;width:76px;height:76px}
+.dbtn span{display:block;border-radius:50%;border:1.5px solid var(--col);transition:transform .2s var(--ease),background .2s ease,box-shadow .3s ease}
+.dbtn[data-v="0"] span,.dbtn[data-v="3"] span{width:58px;height:58px}
+.dbtn[data-v="1"] span,.dbtn[data-v="2"] span{width:40px;height:40px}
+.dbtn[data-v="0"],.dbtn[data-v="1"]{--col:var(--accent-2)}
+.dbtn[data-v="2"],.dbtn[data-v="3"]{--col:var(--accent)}
+@media (hover:hover){.dbtn:hover span{transform:scale(1.08);background:color-mix(in srgb,var(--col) 18%,transparent)}}
+.dbtn:active span{transform:scale(.92)}
+.dbtn[aria-pressed="true"] span{background:var(--col);box-shadow:0 0 28px color-mix(in srgb,var(--col) 60%,transparent)}
+.ends{display:flex;justify-content:space-between;max-width:340px;margin:.6rem auto 0;font-size:12.5px;color:var(--mute)}
+
+/* контрольные точки */
+.cp{position:fixed;inset:0;z-index:20;display:grid;place-items:center;text-align:center;padding:2rem;
+  background:radial-gradient(circle at 50% 50%,rgba(7,7,11,0) 30%,rgba(7,7,11,.7) 80%);animation:enter .5s var(--ease) both}
+.cp > div{height:100%;width:100%;display:flex;flex-direction:column;justify-content:space-between;padding:calc(6vh + env(safe-area-inset-top)) 0 calc(5vh + env(safe-area-inset-bottom))}
+body.cp-on #quiz{visibility:hidden}
+body.cp-on #stage{opacity:.85!important}
+.cp .big{font-family:var(--m);font-weight:400;font-size:clamp(4rem,22vw,6rem);letter-spacing:-.06em;line-height:1;color:var(--text)}
+.cp .big small{font-size:.35em;color:var(--mute);letter-spacing:0}
+.cp h3{font-family:var(--d);font-weight:500;font-size:clamp(1.4rem,6vw,1.8rem);margin-top:1rem;max-width:18ch;margin-inline:auto}
+.cp p{color:var(--mute);margin-top:.7rem;max-width:30ch;margin-inline:auto;font-size:15px}
+.cp .cta{margin-top:2rem;width:min(320px,80vw);margin-inline:auto}
+
+/* сборка результата */
+#reveal{display:grid;place-items:center;text-align:center}
+#reveal p{font-family:var(--m);font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin-top:56vh}
+
+/* ----------------------------------------------------------- результат */
+.r-top{padding:calc(1.2rem + env(safe-area-inset-top)) 0 0}
+.r-print{width:min(86vw,380px);margin:.6rem auto 0;position:relative}
+.r-print .glow{position:absolute;inset:18%;border-radius:50%;background:radial-gradient(circle,rgba(154,175,232,.22),transparent 70%);filter:blur(10px)}
+.r-kick{text-align:center;margin-top:.4rem}
+.r-type{font-family:var(--d);font-weight:500;font-style:italic;font-size:clamp(3rem,15vw,4.6rem);letter-spacing:-.03em;line-height:1;text-align:center;margin-top:.5rem}
+.r-type-t{color:var(--text-2);text-align:center;max-width:36ch;margin:1rem auto 0;font-size:16px}
+
+.card{margin-top:1rem;padding:1.3rem 1.2rem;border:1px solid var(--line);background:var(--card);border-radius:20px}
+.total{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem}
+.total b{font-family:var(--m);font-weight:400;font-size:clamp(3.4rem,17vw,4.6rem);letter-spacing:-.06em;line-height:.85}
+.total .r{text-align:right}
+.total .r em{display:block;font-family:var(--d);font-style:italic;font-size:1.35rem;color:var(--accent);line-height:1.1}
+.total .r span{font-family:var(--m);font-size:11px;color:var(--mute)}
+.band{position:relative;display:flex;gap:3px;height:6px;margin-top:1.3rem}
+.band i{display:block;height:100%;border-radius:3px;background:var(--line)}
+.band i.lit{background:var(--accent)}
+.band .mk{position:absolute;top:-6px;width:2px;height:18px;border-radius:1px;background:var(--text);transition:left 1.4s var(--ease)}
+.band-key{display:flex;justify-content:space-between;margin-top:.55rem;font-family:var(--m);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--mute-2)}
+.card .txt{color:var(--text-2);font-size:15px;margin-top:1.1rem}
+
+.map{position:relative;margin-top:.2rem}
+.map svg{width:100%;height:auto;display:block}
+.map-note{font-size:14.5px;color:var(--text-2);margin-top:1rem}
+
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1rem}
+.chip{display:inline-flex;align-items:center;gap:.45rem;padding:.5rem .8rem;border-radius:999px;border:1px solid var(--line-2);font-size:13px;color:var(--text-2);transition:background .2s,border-color .2s,color .2s}
+.chip i{width:8px;height:8px;border-radius:50%;background:currentColor}
+.chip[aria-selected="true"]{background:var(--text);border-color:var(--text);color:var(--bg)}
+.chip[aria-selected="true"] i{background:var(--bg)!important}
+.detail{margin-top:1rem}
+.detail .h{display:flex;justify-content:space-between;align-items:baseline;gap:1rem}
+.detail h3{font-family:var(--d);font-weight:500;font-size:1.35rem;letter-spacing:-.01em}
+.detail .sc{font-family:var(--m);font-size:13px;color:var(--mute);white-space:nowrap}
+.detail .lv{font-family:var(--m);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-top:.3rem}
+.detail .what{font-size:13.5px;color:var(--mute);margin-top:.9rem}
+.detail .body{font-size:15.5px;color:var(--text-2);margin-top:.5rem}
+.fade{animation:enter .4s var(--ease) both}
+
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:1rem}
+.duo .card{margin:0;padding:1.1rem 1rem}
+.duo h4{font-family:var(--d);font-weight:500;font-size:1.1rem;margin-top:.5rem;line-height:1.15}
+.duo p{font-family:var(--m);font-size:11px;color:var(--mute);margin-top:.5rem}
+.duo .weak{border-color:rgba(154,175,232,.45);background:rgba(154,175,232,.07)}
+
+.lines{display:grid;gap:.6rem;margin-top:1rem}
+.lines p{font-size:15px;color:var(--text-2);padding-left:1rem;border-left:1.5px solid var(--accent)}
+
+.next{margin-top:3rem;padding:1.6rem 1.3rem;border-radius:22px;
+  background:linear-gradient(150deg,rgba(19,42,99,.9),rgba(51,22,89,.85));border:1px solid rgba(154,175,232,.25)}
+.next h2{font-family:var(--d);font-weight:500;font-size:clamp(1.45rem,6.4vw,1.9rem);letter-spacing:-.015em;margin-top:.6rem}
+.next p{color:#d6daec;font-size:15px;margin-top:.8rem}
+.next .cta{margin-top:1.4rem}
+.saved{font-family:var(--m);font-size:10.5px;letter-spacing:.08em;color:var(--mute-2);text-align:center;margin-top:1.6rem}
+.src{font-size:11.5px;color:var(--mute-2);margin:2rem 0 calc(2rem + env(safe-area-inset-bottom));line-height:1.5;text-align:center}
+</style>
+</head>
+<body>
+
+<div id="stageBox" aria-hidden="true"><div id="stage"></div></div>
+
+<!-- ============================================================ вступление -->
+<section id="intro" class="screen" hidden>
+  <div class="wrap intro-top">
+    <div class="bar-top"><span class="lbl">Академия АНИНОТ</span><span class="lbl">ЭмИн · Люсин</span></div>
+    <div class="hero-print" id="heroPrint"></div>
+    <h1 class="title">Эмоциональный <em>интеллект</em></h1>
+    <p class="lead">Эмоция, которую вы не заметили, всё равно участвует в решении. Тест показывает, где это происходит у вас.</p>
+    <div class="meta"><span><b>46</b> утверждений</span><span><b>7</b> минут</span><span><b>5</b> способностей</span></div>
+
+    <div class="sec">
+      <div class="sec-h"><span class="idx">01</span><h2>Зачем это вам</h2></div>
+      <div class="prose">
+        <p>Эмоциональный интеллект это способность понимать эмоции и управлять ими, своими и чужими. От неё зависит, насколько ясно вы думаете под нагрузкой, как договариваетесь с людьми и удерживаете решение, когда внутри тревожно или обидно.</p>
+        <p>Пока вы отвечаете, из ваших ответов складывается фигура из пяти лепестков. Это ваш эмоциональный отпечаток: по нему видно, какая способность у вас опора, а какая проседает и тянет за собой остальные.</p>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><span class="idx">02</span><h2>Пять лепестков</h2></div>
+      <ul class="abil" id="abil"></ul>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><span class="idx">03</span><h2>Как отвечать</h2></div>
+      <div class="prose"><p>Выберите, насколько утверждение про вас. Правильных ответов нет. Отвечайте о том, как обычно бывает в жизни, первым ответом, который пришёл в голову.</p></div>
+      <p class="quote">Опросник измеряет ваш взгляд на свои способности. По нему хорошо видно, на что вы привыкли опираться.</p>
+    </div>
+
+    <div class="field" id="nickField" hidden>
+      <label class="lbl" for="nick">Ваш ник в Telegram</label>
+      <input id="nick" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="@ник">
+    </div>
+
+    <div class="dock">
+      <button class="cta" id="startBtn"><span>Начать тест</span><i>→</i></button>
+      <button class="cta ghost" id="resumeBtn" hidden><span></span><i>→</i></button>
+      <p class="fine" id="consent"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ тест -->
+<section id="quiz" class="screen" hidden>
+  <div class="wrap q-bar">
+    <div class="row">
+      <button class="back" id="qBack">← Назад</button>
+      <span class="q-count" id="qNum"></span>
+    </div>
+    <div class="ticks" id="ticks"></div>
+  </div>
+  <div class="wrap q-body">
+    <p class="q-text q-anim" id="qText"></p>
+  </div>
+  <div class="wrap scale">
+    <p class="picked" id="picked">&nbsp;</p>
+    <div class="dots" id="dots" role="group" aria-label="Насколько это про вас"></div>
+    <div class="ends"><span>Совсем не так</span><span>Совершенно так</span></div>
+  </div>
+</section>
+
+<div class="cp" id="cp" hidden>
+  <div>
+    <div class="big" id="cpBig"></div>
+    <div>
+      <h3 id="cpH"></h3>
+      <p id="cpP"></p>
+      <button class="cta" id="cpBtn"><span>Продолжить</span><i>→</i></button>
+    </div>
+  </div>
+</div>
+
+<section id="reveal" class="screen" hidden><p>Собираем ваш отпечаток</p></section>
+
+<!-- ============================================================ результат -->
+<section id="result" class="screen" hidden><div class="wrap" id="res"></div></section>
+
+<script type="module">
+import { QUESTIONS, OPTIONS, SUB, SCALES, NORMS, LEVELS, score, band, norm01, partial, typeOf, TYPES,
+         SUB_TEXT, TOTAL_TEXT, contrasts } from './core.js';
+
+const CFG = window.EMIN_CONFIG || {};
+const tg = window.Telegram?.WebApp;
+const inTg = !!(tg && tg.initData);
+const STORE = 'emin.v2';
+const N = QUESTIONS.length;
+const KEYS = Object.keys(SUB);                        // MP MU VP VU VE
+const COL = { MP: '#6d86d6', MU: '#4359a8', VP: '#7c5cb3', VU: '#55408c', VE: '#a9b7e6' };
+// Человеческие подписи лепестков: короче названий шкал, влезают в радар.
+const HUMAN = { MP: 'Понимаю других', MU: 'Влияю на других', VP: 'Понимаю себя', VU: 'Управляю собой', VE: 'Держу лицо' };
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const haptic = (k) => { try { k === 'tap' ? tg?.HapticFeedback?.selectionChanged() : tg?.HapticFeedback?.notificationOccurred(k); } catch {} };
+
+if (tg) {
+  try {
+    tg.ready(); tg.expand();
+    tg.setHeaderColor?.('#07070b'); tg.setBackgroundColor?.('#07070b'); tg.setBottomBarColor?.('#07070b');
+    tg.disableVerticalSwipes?.();
+  } catch {}
+}
+
+// ------------------------------------------------------------ хранение
+const fresh = () => ({ answers: Array(N).fill(null), i: 0, done: false, sent: false, cp: [] });
+const load = () => { try { return JSON.parse(localStorage.getItem(STORE)) || null; } catch { return null; } };
+const save = () => { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch {} };
+let state = load();
+if (!state || !Array.isArray(state.answers) || state.answers.length !== N) state = fresh();
+state.cp ||= [];
+const answered = () => state.answers.filter((v) => v !== null).length;
+
+// ----------------------------------------------------------- отпечаток
+// Пять лепестков, по одному на субшкалу. Длина лепестка = положение
+// относительно норм (0…1), середина 0.5 это средний уровень.
+let uid = 0;
+function printSVG({ labels = false, rings = false } = {}) {
+  const id = 'p' + (++uid);
+  const petal = 'M0 0 C -30 -16 -34 -66 0 -94 C 34 -66 30 -16 0 0 Z';
+  const defs = KEYS.map((k) => `
+    <radialGradient id="${id}${k}" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="96">
+      <stop offset="0" stop-color="${COL[k]}" stop-opacity=".05"/>
+      <stop offset=".55" stop-color="${COL[k]}" stop-opacity=".55"/>
+      <stop offset="1" stop-color="${COL[k]}" stop-opacity=".95"/>
+    </radialGradient>`).join('');
+  const ringEls = rings ? [0.2, 0.4, 0.6, 0.8, 1].map((r) =>
+    `<circle r="${r * 94}" fill="none" stroke="rgba(240,240,244,${r === 0.4 || r === 0.6 ? .22 : .08})" stroke-width=".5" ${r === 0.4 || r === 0.6 ? 'stroke-dasharray="1.5 2.5"' : ''}/>`).join('') : '';
+  const petals = KEYS.map((k, j) => `
+    <g transform="rotate(${j * 72})">
+      <path class="petal" data-k="${k}" d="${petal}" fill="url(#${id}${k})" stroke="rgba(240,240,244,.28)" stroke-width=".4"
+        style="mix-blend-mode:screen;transform:scale(.5)"/>
+    </g>`).join('');
+  const lab = labels ? KEYS.map((k, j) => {
+    const a = (j * 72 - 90) * Math.PI / 180, x = Math.cos(a) * 112, y = Math.sin(a) * 112;
+    return `<text x="${x.toFixed(1)}" y="${(y + 3).toFixed(1)}" text-anchor="${Math.abs(x) < 5 ? 'middle' : x > 0 ? 'start' : 'end'}"
+      font-family="IBM Plex Mono, monospace" font-size="7" letter-spacing=".6" fill="${COL[k]}">${SUB[k].short}</text>`;
+  }).join('') : '';
+  return `<svg class="print" viewBox="-130 -130 260 260" role="img" aria-label="Эмоциональный отпечаток">
+    <defs>${defs}</defs>${ringEls}<g class="${labels ? '' : 'spin'}">${petals}</g>${lab}
+    <circle r="2.2" fill="#f0f0f4"/></svg>`;
+}
+function setPrint(root, vals) {
+  for (const p of root.querySelectorAll('.petal')) {
+    const v = vals[p.dataset.k];
+    p.style.transform = `scale(${(0.18 + 0.82 * v).toFixed(3)})`;
+  }
+}
+
+$('stage').innerHTML = printSVG();
+$('heroPrint').innerHTML = printSVG({ rings: true });
+
+// на вступлении лепестки дышат, пока человек читает
+let idle;
+function breathe() {
+  const v = {}; for (const k of KEYS) v[k] = 0.35 + Math.random() * 0.55;
+  setPrint($('heroPrint'), v);
+}
+function startIdle() { if (calm) { setPrint($('heroPrint'), { MP: .7, MU: .5, VP: .8, VU: .45, VE: .6 }); return; } breathe(); idle = setInterval(breathe, 2200); }
+
+function stage(on, blur = 14) {
+  const s = $('stage');
+  s.classList.toggle('on', on);
+  s.style.filter = `blur(${blur}px)`;
+}
+
+// ------------------------------------------------------------- экраны
+function show(id) {
+  for (const s of ['intro', 'quiz', 'reveal', 'result']) $(s).hidden = s !== id;
+  $(id).classList.remove('enter'); void $(id).offsetWidth; $(id).classList.add('enter');
+  window.scrollTo(0, 0);
+  if (tg?.BackButton) id === 'quiz' ? tg.BackButton.show() : tg.BackButton.hide();
+  if (id !== 'intro') clearInterval(idle);
+}
+
+// ---------------------------------------------------------- вступление
+$('abil').innerHTML = KEYS.map((k) =>
+  `<li><span class="dot" style="background:${COL[k]};color:${COL[k]}"></span><div><h4>${SUB[k].name}</h4><p>${SUB_TEXT[k].what}</p></div></li>`).join('');
+$('consent').innerHTML = 'Нажимая «Начать тест», вы соглашаетесь, что Академия АНИНОТ сохранит ваш ник в Telegram, имя и результат, чтобы связаться с вами по итогам.' +
+  (CFG.policyUrl ? ` <a href="${esc(CFG.policyUrl)}" target="_blank" rel="noopener">Политика обработки данных</a>.` : '');
+if (!inTg) { $('nickField').hidden = false; if (state.nick) $('nick').value = state.nick; }
+
+function readNick() {
+  if (inTg) return undefined;
+  const v = $('nick').value.trim().replace(/^https?:\/\/t\.me\//, '').replace(/^@+/, '');
+  return v ? v.slice(0, 64) : undefined;
+}
+function openIntro() {
+  show('intro'); stage(false); startIdle();
+  const n = answered(), partialRun = n > 0 && !state.done;
+  $('resumeBtn').hidden = !partialRun;
+  $('startBtn').querySelector('span').textContent = partialRun ? 'Начать заново' : 'Начать тест';
+  if (partialRun) $('resumeBtn').querySelector('span').textContent = `Продолжить с ${state.i + 1}-го утверждения`;
+  // если есть незаконченный тест, главное действие «продолжить»
+  if (partialRun) $('startBtn').classList.add('ghost'), $('resumeBtn').classList.remove('ghost'), $('resumeBtn').after($('startBtn'));
+}
+$('startBtn').onclick = () => { const nick = readNick(); state = fresh(); state.nick = nick; save(); openQuiz(); };
+$('resumeBtn').onclick = () => { state.nick = readNick(); save(); openQuiz(); };
+
+// ---------------------------------------------------------------- тест
+$('ticks').innerHTML = '<i></i>'.repeat(N);
+$('dots').innerHTML = OPTIONS.map((o, v) =>
+  `<button class="dbtn" data-v="${v}" aria-pressed="false" aria-label="${o}"><span></span></button>`).join('');
+
+function grow() {
+  // фигура проявляется: чем больше ответов, тем меньше размытие
+  const p = answered() / N;
+  stage(true, Math.round(16 - 12 * p));
+  setPrint($('stage'), partial(state.answers));
+}
+function paintQ() {
+  const i = state.i, a = state.answers[i];
+  $('qNum').innerHTML = `<b>${String(i + 1).padStart(2, '0')}</b> / ${N}`;
+  [...$('ticks').children].forEach((t, j) => t.className = j === i ? 'cur' : state.answers[j] !== null ? 'on' : '');
+  $('qText').textContent = QUESTIONS[i];
+  for (const b of $('dots').children) b.setAttribute('aria-pressed', String(Number(b.dataset.v) === a));
+  $('picked').textContent = a === null ? ' ' : OPTIONS[a];
+  $('picked').classList.toggle('on', a !== null);
+  $('qBack').disabled = false;
+}
+function slide(dir, fn) {
+  const t = $('qText');
+  if (calm) { fn(); return; }
+  t.classList.add('out');
+  setTimeout(() => {
+    fn();
+    t.classList.remove('out'); t.classList.add('pre');
+    if (dir < 0) t.style.transform = 'translateX(-22px)';
+    void t.offsetWidth;
+    t.classList.remove('pre'); t.style.transform = '';
+  }, 200);
+}
+function openQuiz() { show('quiz'); paintQ(); grow(); }
+
+let lock = false;
+function pick(v) {
+  if (lock || $('quiz').hidden || !$('cp').hidden) return;
+  lock = true;
+  state.answers[state.i] = v; save(); haptic('tap');
+  paintQ(); grow();
+  setTimeout(() => { lock = false; next(); }, 320);
+}
+const CP = {
+  12: ['Четверть пути', 'Отпечаток начинает проявляться. Фигура позади вопросов собирается из ваших ответов.'],
+  23: ['Половина', 'Первый ответ обычно точнее обдуманного. Продолжайте в том же темпе.'],
+  36: ['Осталось десять', 'Ещё пара минут, и вы увидите свой отпечаток целиком.'],
+};
+function next() {
+  if (state.answers[state.i] === null) return;
+  const n = answered();
+  if (CP[n] && !state.cp.includes(n) && n < N) { state.cp.push(n); save(); checkpoint(n); return; }
+  const gap = state.answers.indexOf(null);
+  if (gap === -1) { finish(); return; }
+  slide(1, () => { state.i = state.i < N - 1 && state.answers[state.i + 1] === null ? state.i + 1 : gap; save(); paintQ(); });
+}
+function back() {
+  if (!$('cp').hidden) return;
+  if (state.i === 0) { openIntro(); return; }
+  slide(-1, () => { state.i--; save(); paintQ(); });
+}
+function checkpoint(n) {
+  $('cpBig').innerHTML = `${n}<small> / ${N}</small>`;
+  $('cpH').textContent = CP[n][0];
+  $('cpP').textContent = CP[n][1];
+  $('cp').hidden = false; document.body.classList.add('cp-on'); haptic('success');
+  stage(true, Math.round(8 - 6 * n / N));
+}
+$('cpBtn').onclick = () => { $('cp').hidden = true; document.body.classList.remove('cp-on'); grow(); next(); };
+$('dots').onclick = (e) => { const b = e.target.closest('.dbtn'); if (b) pick(Number(b.dataset.v)); };
+$('qBack').onclick = back;
+tg?.BackButton?.onClick(() => ($('quiz').hidden ? null : back()));
+document.addEventListener('keydown', (e) => {
+  if (!$('cp').hidden && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); $('cpBtn').click(); return; }
+  if ($('quiz').hidden) return;
+  if (e.key >= '1' && e.key <= '4') pick(Number(e.key) - 1);
+  else if (e.key === 'ArrowLeft') back();
+  else if (e.key === 'ArrowRight' && state.answers[state.i] !== null) next();
+});
+
+// ----------------------------------------------------------- результат
+function finish() {
+  state.done = true; save();
+  haptic('success');
+  const r = score(state.answers);
+  const v = {}; for (const k of KEYS) v[k] = norm01(k, r[k].score);
+  show('reveal');
+  setPrint($('stage'), v);
+  $('stage').style.width = 'min(90vw,440px)';
+  stage(true, 0); $('stage').style.opacity = '.9';
+  setTimeout(() => { $('stage').style.opacity = ''; $('stage').style.width = ''; stage(false); renderResult(r); show('result'); submit(); }, calm ? 300 : 2100);
+}
+
+function countUp(el, to, ms = 1400) {
+  if (calm) { el.textContent = to; return; }
+  const t0 = performance.now();
+  const step = (t) => { const p = Math.min(1, (t - t0) / ms); el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+
+function mapSVG(x, y) {
+  const S = 300, P = 22, W = S - P * 2;
+  const px = P + x * W, py = P + (1 - y) * W;
+  const q = (tx, ty, a, t) => `<text x="${tx}" y="${ty}" text-anchor="${a}" font-family="Playfair Display, serif" font-style="italic" font-size="15" fill="rgba(240,240,244,.5)">${t}</text>`;
+  return `<svg viewBox="0 0 ${S} ${S}" role="img" aria-label="Карта типа">
+    <defs><radialGradient id="mg"><stop offset="0" stop-color="#9aafe8" stop-opacity=".55"/><stop offset="1" stop-color="#9aafe8" stop-opacity="0"/></radialGradient></defs>
+    <rect x="${P}" y="${P}" width="${W}" height="${W}" rx="14" fill="rgba(240,240,244,.025)" stroke="rgba(240,240,244,.1)"/>
+    <rect x="${P + W * .4}" y="${P + W * .4}" width="${W * .2}" height="${W * .2}" fill="rgba(240,240,244,.04)"/>
+    <line x1="${P + W / 2}" y1="${P}" x2="${P + W / 2}" y2="${P + W}" stroke="rgba(240,240,244,.16)" stroke-dasharray="2 4"/>
+    <line x1="${P}" y1="${P + W / 2}" x2="${P + W}" y2="${P + W / 2}" stroke="rgba(240,240,244,.16)" stroke-dasharray="2 4"/>
+    ${q(P + 12, P + 24, 'start', 'Эмпат')}${q(P + W - 12, P + 24, 'end', 'Дирижёр')}
+    <text x="${S / 2}" y="${P + W * .4 - 6}" text-anchor="middle" font-family="Playfair Display, serif" font-style="italic" font-size="12" fill="rgba(240,240,244,.38)">Равновесие</text>
+    ${q(P + 12, P + W - 14, 'start', 'Автопилот')}${q(P + W - 12, P + W - 14, 'end', 'Автономный')}
+    <text x="${S / 2}" y="${S - 4}" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="8" letter-spacing="1.5" fill="#676a82">ВЫ САМИ →</text>
+    <text x="8" y="${S / 2}" text-anchor="middle" transform="rotate(-90 8 ${S / 2})" font-family="IBM Plex Mono, monospace" font-size="8" letter-spacing="1.5" fill="#676a82">ДРУГИЕ ЛЮДИ →</text>
+    <g id="mdot" style="transform:translate(${S / 2}px,${S / 2}px);transition:transform 1.6s cubic-bezier(.22,.61,.36,1)" data-x="${px.toFixed(1)}" data-y="${py.toFixed(1)}">
+      <circle r="34" fill="url(#mg)"/><circle r="6" fill="#f0f0f4"/><circle r="11" fill="none" stroke="#f0f0f4" stroke-opacity=".4"/>
+    </g></svg>`;
+}
+
+function renderResult(r) {
+  const o = r.OEI, type = typeOf(r), T = TYPES[type];
+  const vx = norm01('VEI', r.VEI.score), vy = norm01('MEI', r.MEI.score);
+  const bandCells = LEVELS.map((_, j) => `<i style="flex:1" class="${j <= o.level ? 'lit' : ''}"></i>`).join('');
+  const shareUrl = CFG.shareUrl && !/ВСТАВИТЬ/.test(CFG.shareUrl) ? CFG.shareUrl : '';
+
+  $('res').innerHTML = `
+    <div class="r-top">
+      <div class="bar-top"><span class="lbl">Ваш отпечаток</span><span class="lbl">${new Date().toLocaleDateString('ru-RU')}</span></div>
+      <div class="r-print"><div class="glow"></div><div id="resPrint">${printSVG({ rings: true, labels: true })}</div></div>
+      <p class="lbl r-kick">Ваш тип</p>
+      <h1 class="r-type">${T.name}</h1>
+      <p class="r-type-t">${T.text}</p>
+    </div>
+
+    <div class="card" style="margin-top:2rem">
+      <span class="lbl">Общий уровень ЭИ</span>
+      <div class="total" style="margin-top:.8rem">
+        <b class="num" id="tot">0</b>
+        <div class="r"><em>${LEVELS[o.level]}</em><span>из ${o.max} баллов</span></div>
+      </div>
+      <div class="band">${bandCells}<span class="mk" id="mk" style="left:0"></span></div>
+      <div class="band-key"><span>оч. низкий</span><span>средний</span><span>оч. высокий</span></div>
+      <p class="txt">${TOTAL_TEXT[o.level]}</p>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><span class="idx">01</span><h2>Пять лепестков</h2></div>
+      <p class="prose" style="font-size:14.5px;color:var(--mute)">Пунктирное кольцо на отпечатке это средний уровень. Нажмите на способность, чтобы прочитать расшифровку.</p>
+      <div class="chips" role="tablist" id="chips">${KEYS.map((k) =>
+        `<button class="chip" role="tab" data-k="${k}" aria-selected="false"><i style="background:${COL[k]}"></i>${HUMAN[k]}</button>`).join('')}</div>
+      <div class="card detail" id="detail"></div>
+      <div class="duo">
+        <div class="card"><span class="lbl">Опора</span><h4>${SUB[r.strong].name}</h4><p>${LEVELS[r[r.strong].level]} · ${r[r.strong].score}/${r[r.strong].max}</p></div>
+        <div class="card weak"><span class="lbl" style="color:var(--accent)">Точка роста</span><h4>${SUB[r.weak].name}</h4><p>${LEVELS[r[r.weak].level]} · ${r[r.weak].score}/${r[r.weak].max}</p></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-h"><span class="idx">02</span><h2>Ваша карта</h2></div>
+      <div class="card map">${mapSVG(vx, vy)}
+        <p class="map-note">По горизонтали то, как вы понимаете себя и справляетесь с собой (${r.VEI.score} из ${r.VEI.max}), по вертикали то, как вы понимаете других и влияете на них (${r.MEI.score} из ${r.MEI.max}). Светлый квадрат в центре это средний уровень.</p>
+      </div>
+      <div class="lines">${contrasts(r).map((t) => `<p>${t}</p>`).join('')}</div>
+    </div>
+
+    ${CFG.ctaUrl ? `
+    <div class="next">
+      <span class="lbl" style="color:#a3b0d4">Что дальше</span>
+      <h2>${esc(SUB[r.weak].name)}: с чего начать</h2>
+      <p>Эмоциональный интеллект развивается так же, как любой навык мышления: через внимание, слова для своих состояний и регулярную практику. Разберём ваш отпечаток и подскажем, с какого упражнения начать именно вам.</p>
+      <a class="cta" href="${esc(CFG.ctaUrl)}" id="ctaBtn"><span>${esc(CFG.ctaText || 'Разобрать результат')}</span><i>→</i></a>
+    </div>` : ''}
+
+    <div style="margin-top:1rem">
+      ${shareUrl ? `<button class="cta ghost" id="shareBtn"><span>Отправить тест другу</span><i>↗</i></button>` : ''}
+      <button class="cta ghost" id="againBtn"><span>Пройти заново</span><i>↺</i></button>
+    </div>
+    <p class="saved" id="saved"></p>
+    <p class="src">Опросник ЭмИн Д. В. Люсина (2009), нормы автора. Тип и карта это способ показать соотношение шкал. Результат отражает самооценку и не является психологическим диагнозом.</p>`;
+
+  // анимации появления
+  const vals = {}; for (const k of KEYS) vals[k] = norm01(k, r[k].score);
+  const rp = $('resPrint');
+  setPrint(rp, { MP: .05, MU: .05, VP: .05, VU: .05, VE: .05 });
+  requestAnimationFrame(() => setTimeout(() => setPrint(rp, vals), 60));
+  countUp($('tot'), o.score);
+  setTimeout(() => { $('mk').style.left = `calc(${(norm01('OEI', o.score) * 100).toFixed(1)}% - 1px)`; }, 200);
+  // точка на карте едет из центра, когда до неё долистали
+  const md = $('mdot');
+  const go = () => { md.style.transform = `translate(${md.dataset.x}px,${md.dataset.y}px)`; };
+  if (!('IntersectionObserver' in window)) setTimeout(go, 500);
+  else {
+    new IntersectionObserver((es, ob) => { if (es[0].isIntersecting) { go(); ob.disconnect(); } }, { threshold: .4 }).observe(md.closest('svg'));
+  }
+
+  const pickChip = (k) => {
+    for (const c of $('chips').children) c.setAttribute('aria-selected', String(c.dataset.k === k));
+    const x = r[k];
+    const tag = k === r.weak ? ' · точка роста' : k === r.strong ? ' · опора' : '';
+    $('detail').innerHTML = `<div class="fade">
+      <div class="h"><h3>${SUB[k].name}</h3><span class="sc">${x.score} / ${x.max}</span></div>
+      <div class="lv">${LEVELS[x.level]}${tag}</div>
+      <p class="what">${SUB_TEXT[k].what}</p>
+      <p class="body">${SUB_TEXT[k][band(x.level)]}</p></div>`;
+    for (const p of rp.querySelectorAll('.petal')) p.style.opacity = p.dataset.k === k ? '1' : '.45';
+  };
+  $('chips').onclick = (e) => { const c = e.target.closest('.chip'); if (c) { pickChip(c.dataset.k); haptic('tap'); } };
+  pickChip(r.weak);
+
+  $('againBtn').onclick = () => { const nick = state.nick; state = fresh(); state.nick = nick; save(); openQuiz(); };
+  const sb = $('shareBtn');
+  if (sb) sb.onclick = () => {
+    const text = 'Тест на эмоциональный интеллект от Академии АНИНОТ: 46 утверждений, 7 минут, в конце ваш эмоциональный отпечаток.';
+    const u = `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(text)}`;
+    tg?.openTelegramLink ? tg.openTelegramLink(u) : window.open(u, '_blank', 'noopener');
+  };
+  const cb = $('ctaBtn');
+  if (cb && tg) cb.onclick = (e) => {
+    const u = CFG.ctaUrl;
+    if (/^https:\/\/t\.me\//.test(u) && tg.openTelegramLink) { e.preventDefault(); tg.openTelegramLink(u); }
+    else if (tg.openLink) { e.preventDefault(); tg.openLink(u); }
+  };
+}
+
+// --------------------------------------------------------- отправка
+async function submit(attempt = 0) {
+  const s = $('saved');
+  if (state.sent) { s.textContent = 'Результат сохранён'; return; }
+  if (!CFG.url || !CFG.anonKey || /ВСТАВИТЬ/.test(CFG.anonKey)) { s.textContent = ''; return; }
+  s.textContent = 'Сохраняем результат…';
+  const start = tg?.initDataUnsafe?.start_param || new URLSearchParams(location.search).get('tgWebAppStartParam') || '';
+  try {
+    const res = await fetch(CFG.url.replace(/\/$/, '') + '/functions/v1/emin-submit', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', apikey: CFG.anonKey },
+      body: JSON.stringify({ initData: tg?.initData || '', answers: state.answers, nick: state.nick || null, start }),
+    });
+    if (!res.ok) throw new Error(String(res.status));
+    state.sent = true; save();
+    s.textContent = 'Результат сохранён';
+  } catch {
+    if (attempt < 3) setTimeout(() => submit(attempt + 1), 1500 * (attempt + 1));
+    else s.textContent = 'Не удалось сохранить результат. Он останется на этом устройстве.';
+  }
+}
+
+// ---------------------------------------------------------------- старт
+if (state.done && state.answers.every((v) => v !== null)) { renderResult(score(state.answers)); show('result'); submit(); }
+else openIntro();
+</script>
+</body>
+</html>
